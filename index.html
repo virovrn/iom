@@ -28,10 +28,11 @@
           </table>
         `;
       },
-      error: function(err, file, inputElem, reason) {
-        output.innerHTML = `<p class="no-data">Ошибка загрузки CSV: ${reason || err}</p>`;
-        console.error("Ошибка:", err || reason);
+        error: function(err, file, inputElem, reason) {
+          console.error("Ошибка при загрузке CSV:", err, reason);
+          output.innerHTML = `<p class="no-data">Ошибка загрузки CSV: ${JSON.stringify(err)}</p>`;
       }
+
     });
   }
 </script>

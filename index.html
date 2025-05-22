@@ -1,38 +1,69 @@
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get('id');
-  const output = document.getElementById('output');
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Индивидуальный образовательный маршрут</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 20px; }
+    h1, h2 { text-align: center; }
+    table { margin: 0 auto; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 8px 12px; }
+    th { background: #607D8B; color: white; }
+    .no-data { color: red; text-align: center; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Индивидуальный образовательный маршрут</h1>
+  <div id="output">Загрузка...</div>
 
-  if (!id) {
-    output.innerHTML = '<p class="no-data">Не указан ID. Обратитесь к координатору.</p>';
-  } else {
-    Papa.parse("https://corsproxy.io/?https://cloud.vrnds.ru/s/zw7yTzDBqLWYiF4/download?download=1", {
-      download: true,
-      header: true,
-      complete: function(results) {
-        const data = results.data;
-        const person = data.find(row => row.id === id);
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script>
+    (function() {
+      const output = document.getElementById('output');
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
 
-        if (!person) {
-          output.innerHTML = '<p class="no-data">Данные не найдены.</p>';
-          return;
-        }
-
-        output.innerHTML = `
-          <h2>${person['ФИО']}</h2>
-          <table>
-            <tr><th>Дата</th><td>${person['Дата']}</td></tr>
-            <tr><th>Мероприятие</th><td>${person['Мероприятие']}</td></tr>
-            <tr><th>Комментарий</th><td>${person['Комментарий']}</td></tr>
-          </table>
-        `;
-      },
-        error: function(err, file, inputElem, reason) {
-          console.error("Ошибка при загрузке CSV:", err, reason);
-          output.innerHTML = `<p class="no-data">Ошибка загрузки CSV: ${JSON.stringify(err)}</p>`;
+      if (!id) {
+        output.innerHTML = '<p class="no-data">Не указан ID. Обратитесь к координатору.</p>';
+        return;
       }
 
-    });
-  }
-</script>
+      // Ссылка на CSV с прокси cors-anywhere
+      const csvUrl = "https://cors-anywhere.herokuapp.com/https://cloud.vrnds.ru/s/zw7yTzDBqLWYiF4/download?download=1";
+
+      Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          if (results.errors.length) {
+            console.error("Ошибки парсинга CSV:", results.errors);
+            output.innerHTML = '<p class="no-data">Ошибка парсинга CSV.</p>';
+            return;
+          }
+
+          const data = results.data;
+          const person = data.find(row => row.id === id);
+
+          if (!person) {
+            output.innerHTML = '<p class="no-data">Данные не найдены.</p>';
+            return;
+          }
+
+          output.innerHTML = `
+            <h2>${person['ФИО']}</h2>
+            <table>
+              <tr><th>Дата</th><td>${person['Дата']}</td></tr>
+              <tr><th>Мероприятие</th><td>${person['Мероприятие']}</td></tr>
+              <tr><th>Комментарий</th><td>${person['Комментарий']}</td></tr>
+            </table>
+          `;
+        },
+        error: function(err) {
+          console.error("Ошибка загрузки CSV:", err);
+          output.innerHTML = `<p class="no-data">Ошибка загрузки CSV: ${JSON.stringify(err)}</p>`;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

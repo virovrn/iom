@@ -2,500 +2,70 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Индивидуальный маршрут</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <title>ИОМ через Google Sheets</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop/1.5.4/tabletop.min.js"></script>
   <style>
-    :root {
-      --cream: #F5F9FF;
-      --light-blue: #E6F0FF;
-      --soft-blue: #C4D8F2;
-      --medium-blue: #7AA3CC;
-      --dark-blue: #4A6B8A;
-      --accent-blue: #5B8AC7;
-    }
-    
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: var(--cream);
-      color: #4A5568;
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    
-    .main-title {
-      font-family: 'Playfair Display', serif;
-      color: var(--dark-blue);
-      text-align: center;
-      font-size: 2.2rem;
-      margin-bottom: 30px;
-    }
-    
-    #id-form {
-      background-color: white;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(106, 142, 180, 0.08);
-      max-width: 500px;
-      margin: 0 auto 30px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    #user-id {
-      padding: 12px 15px;
-      border: 2px solid var(--medium-blue);
-      border-radius: 8px;
-      font-size: 16px;
-      width: 200px;
-      margin-bottom: 15px;
-      background-color: var(--cream);
-    }
-    
-    #user-id:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 3px rgba(91, 138, 199, 0.2);
-    }
-    
-    button {
-      background-color: var(--accent-blue);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-    
-    button:hover {
-      background-color: var(--dark-blue);
-    }
-    
-    .section {
-      background-color: white;
-      padding: 30px;
-      border-radius: 15px;
-      margin-bottom: 30px;
-      box-shadow: 0 5px 15px rgba(106, 142, 180, 0.05);
-    }
-    
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    
-    th, td {
-      padding: 15px;
-      text-align: left;
-      border-bottom: 1px solid var(--light-blue);
-    }
-    
-    th {
-      background-color: var(--light-blue);
-      color: var(--dark-blue);
-      font-weight: 500;
-      width: 30%;
-    }
-    
-    tr:nth-child(even) {
-      background-color: rgba(230, 240, 255, 0.3);
-    }
-    
-    tr:hover {
-      background-color: rgba(196, 216, 242, 0.2);
-    }
-    
-    .no-data {
-      color: var(--dark-blue);
-      font-style: italic;
-      text-align: center;
-      padding: 20px;
-      font-size: 1.1rem;
-    }
-    
-    footer {
-      text-align: center;
-      padding: 30px;
-      color: var(--dark-blue);
-      font-size: 0.9rem;
-      margin-top: 50px;
-      border-top: 1px solid var(--light-blue);
-    }
-    
-    footer a {
-      color: var(--accent-blue);
-      text-decoration: none;
-    }
-    
-    footer a:hover {
-      text-decoration: underline;
-    }
-    
-    .download-btn {
-      display: inline-block;
-      background-color: var(--accent-blue);
-      color: white;
-      padding: 12px 25px;
-      border-radius: 8px;
-      text-decoration: none;
-      margin-top: 15px;
-      font-weight: 500;
-    }
-    
-    .download-btn:hover {
-      background-color: var(--dark-blue);
-    }
-    
-    em {
-      color: var(--dark-blue);
-      font-style: normal;
-      display: block;
-      margin-bottom: 15px;
-    }
-    
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      color: var(--accent-blue);
-      margin-top: 0;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--medium-blue);
-      font-size: 1.8rem;
-    }
-    
-    .section-link {
-      color: var(--accent-blue);
-      text-decoration: none;
-      font-weight: 500;
-    }
-    
-    .section-link:hover {
-      text-decoration: underline;
-    }
-    
-    @media (max-width: 768px) {
-      #id-form {
-        padding: 20px;
-      }
-      
-      #user-id {
-        width: 100%;
-      }
-      
-      .section {
-        padding: 20px;
-      }
-      
-      th, td {
-        padding: 10px;
-      }
-      
-      .main-title {
-        font-size: 1.8rem;
-      }
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+    input, button { padding: 10px; font-size: 16px; margin-right: 10px; }
+    table { border-collapse: collapse; width: 100%; margin: 20px 0; background: white; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #eef; }
+    .section { margin-top: 30px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="main-title">Индивидуальный образовательный маршрут</h1>
-    
-    <form id="id-form">
-      <label for="user-id">Введите ваш ID:</label>
-      <input type="text" id="user-id" name="user-id" placeholder="например, 36251200" />
-      <button type="submit">Показать маршрут</button>
-    </form>
-    
-    <div id="content"></div>
+  <h1>Индивидуальный образовательный маршрут</h1>
+  <div>
+    <input type="text" id="userId" placeholder="Введите ID" />
+    <button onclick="run()">Показать</button>
   </div>
-  
-  <footer>
-    <div>
-      Если вы заметили ошибки, отсутствуют посещенные мероприятия или у вас есть предложения,
-      пожалуйста, сообщите нам на
-      <a href="mailto:nai@virovrn.ru">nai@virovrn.ru</a>
-    </div>
-    <button id="pdf-download-btn" class="download-btn">Скачать бланк ИОМ в PDF</button>
-  </footer>
+  <div id="output"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script>
-  // Конфигурация URL для CSV файлов
-  const csvUrls = {
-    info: 'https://cloud.vrnds.ru/s/HRQRsqanifs7oCN/download',
-    recom: 'https://cloud.vrnds.ru/s/RPNpJ5Z7g939yKH/download',
-    tut: 'https://cloud.vrnds.ru/s/njJLTFfqprSCcBo/download',
-    met: 'https://cloud.vrnds.ru/s/tFago3XeDzZFSzr/download',
-    feedback: 'https://cloud.vrnds.ru/s/Pw94GmjGd4ziQLg/download',
-    active: 'https://cloud.vrnds.ru/s/J6EfsBWH3NEy3Sm/download'
-  };
+  <script>
+    // Вставьте свой ID Google-таблицы
+    const SPREADSHEET_KEY = '1Xaa2DP-ME57SHfuPzBfnTa2QyTHpGf9DGcHVmsFx4GE';
 
-  // Конфигурация ссылок для разделов
-  const sectionLinks = {
-    info: 'https://cloud.vrnds.ru/apps/forms/s/kiQXxqArwnCGrTNefQr486in',
-    recom: 'https://cloud.vrnds.ru/apps/forms/s/your-recom-link',
-    tut: 'https://cloud.vrnds.ru/apps/forms/s/your-tut-link',
-    met: 'https://cloud.vrnds.ru/apps/forms/s/your-met-link',
-    feedback: 'https://cloud.vrnds.ru/apps/forms/s/Tj3FgCj3DQysd8oZJrssqsjr',
-    active: 'https://cloud.vrnds.ru/apps/forms/s/Hw9q2kn3HqgMDmk5mLXWPNaC'
-  };
+    function run() {
+      const id = document.getElementById('userId').value.trim();
+      if (!id) return alert('ID не введён');
+      document.getElementById('output').innerHTML = 'Загрузка...';
+      Tabletop.init({
+        key: SPREADSHEET_KEY,
+        callback: data => render(data, id),
+        simpleSheet: false
+      });
+    }
 
-  // Основная функция загрузки и отображения данных
-  async function loadUserData(userId) {
-    const content = document.getElementById('content');
-    content.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--dark-blue);">Загрузка данных...</p>';
-    
-    try {
-      // Загружаем все CSV файлы параллельно
-      const [infoData, recomData, tutData, metData, feedbackData, activeData] = await Promise.all([
-        loadCsvData(csvUrls.info, 'info'),
-        loadCsvData(csvUrls.recom, 'recom'),
-        loadCsvData(csvUrls.tut, 'tut'),
-        loadCsvData(csvUrls.met, 'met'),
-        loadCsvData(csvUrls.feedback, 'feedback'),
-        loadCsvData(csvUrls.active, 'active')
-      ]);
-
-      // Находим пользователя по ID
-      const userInfo = infoData.find(row => row.ID === userId);
-      if (!userInfo) {
-        content.innerHTML = '<p class="no-data" style="font-size: 1.2rem;">Пользователь с таким ID не найден</p>';
+    function render(data, userId) {
+      const sheets = ['Info','Recom','Tut','Met','Feedback','Active'];
+      const info = data.Info.elements.find(r => r.ID == userId);
+      if (!info) {
+        document.getElementById('output').innerHTML = `<p>ID ${userId} не найден.</p>`;
         return;
       }
+      const fio = info['ФИО'] || info['FIO'];
+      let html = `<h2>${fio}</h2>`;
 
-      // Получаем ФИО пользователя (второй столбец в info)
-      const fioField = Object.keys(infoData[0])[1];
-      const userFio = userInfo[fioField].trim();
-      
-      // Фильтруем данные по точному совпадению ФИО
-      const filteredData = {
-        recom: filterByFio(recomData, userFio),
-        tut: filterByFio(tutData, userFio),
-        met: filterByFio(metData, userFio),
-        feedback: filterByFio(feedbackData, userFio),
-        active: filterByFio(activeData, userFio)
-      };
-
-      // Отображаем данные
-      displayUserData(userInfo, filteredData, {
-        recom: recomData,
-        tut: tutData,
-        met: metData,
-        feedback: feedbackData,
-        active: activeData
+      sheets.slice(1).forEach(sheet => {
+        const rows = data[sheet].elements.filter(r => (r['ФИО']||r['FIO']) == fio);
+        html += `<div class="section"><h3>${sheet}</h3>`;
+        if (rows.length) {
+          html += '<table><thead><tr>' +
+                  Object.keys(rows[0])
+                        .slice(1, sheet==='Recom'?6: sheet==='Active'?5:7)
+                        .map(h=>`<th>${h}</th>`).join('') +
+                  '</tr></thead><tbody>' +
+                  rows.map(r=>'<tr>'+ Object.values(r)
+                          .slice(1, sheet==='Recom'?6: sheet==='Active'?5:7)
+                          .map(v=>`<td>${v}</td>`).join('') +
+                  '</tr>').join('') +
+                  '</tbody></table>';
+        } else html += '<p>Нет данных</p>';
+        html += '</div>';
       });
-      
-    } catch (error) {
-      console.error('Ошибка при загрузке данных:', error);
-      content.innerHTML = `
-        <div class="section">
-          <p class="no-data" style="color: var(--accent-blue);">
-            Произошла ошибка при загрузке данных: ${error.message}. Проверьте консоль браузера (F12 → Консоль) для подробностей.
-          </p>
-        </div>
-      `;
+
+      document.getElementById('output').innerHTML = html;
     }
-  }
-
-  // Функция загрузки CSV файла
-  async function loadCsvData(url, fileName) {
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Accept': 'text/csv'
-        }
-      });
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'No error text available');
-        throw new Error(`HTTP error! Status: ${response.status}, URL: ${url}, File: ${fileName}, Response: ${errorText}`);
-      }
-      const text = await response.text();
-      return new Promise((resolve) => {
-        Papa.parse(text, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => resolve(results.data)
-        });
-      });
-    } catch (error) {
-      console.error(`Ошибка загрузки ${fileName} (${url}):`, error);
-      throw error;
-    }
-  }
-
-  // Функция фильтрации по ФИО
-  function filterByFio(data, fio) {
-    if (!data || !data.length) return [];
-    
-    const fioField = Object.keys(data[0]).find(key => 
-      key.toLowerCase().includes('фио') || 
-      key.toLowerCase().includes('fio') ||
-      key.toLowerCase().includes('фам')
-    );
-    
-    if (!fioField) return [];
-    
-    return data.filter(row => row[fioField] && row[fioField].trim() === fio);
-  }
-
-  // Функция отображения данных с учетом нужных столбцов
-  function displayUserData(userInfo, filteredData, allData) {
-    const content = document.getElementById('content');
-    const fioField = Object.keys(userInfo)[1];
-    
-    content.innerHTML = `
-      ${createInfoSection(userInfo)}
-      ${createSection('Рекомендуемые мероприятия', filteredData.recom, getColumns(allData.recom, 2, 6), sectionLinks.recom)}
-      ${createSection('Тьюторское сопровождение', filteredData.tut, getColumns(allData.tut, 2, 7), sectionLinks.tut)}
-      ${createSection('Методическое сопровождение', filteredData.met, getColumns(allData.met, 2, 7), sectionLinks.met)}
-      ${createSection('Обратная связь', filteredData.feedback, getColumns(allData.feedback, 2, 7), sectionLinks.feedback)}
-      ${createSection('Активность', filteredData.active, getColumns(allData.active, 2, 5), sectionLinks.active)}
-    `;
-  }
-
-  // Получение нужных столбцов для каждого листа
-  function getColumns(data, start, end) {
-    if (!data || !data.length) return [];
-    const allColumns = Object.keys(data[0]);
-    return allColumns.slice(start, end);
-  }
-
-  // Создание секции с основной информацией
-  function createInfoSection(userInfo) {
-    const fields = Object.keys(userInfo).slice(0, 15);
-    const rows = fields.map(field => `
-      <tr>
-        <th>${field}</th>
-        <td>${userInfo[field] || ''}</td>
-      </tr>
-    `).join('');
-    
-    return `
-      <div class="section">
-        <h2 class="section-title">Общая информация</h2>
-        <em>Внесите корректировки в общую информацию по <a href="${sectionLinks.info}" class="section-link">ссылке</a>.</em>
-        <table><tbody>${rows}</tbody></table>
-      </div>
-    `;
-  }
-
-  // Создание секции с таблицей данных
-  function createSection(title, data, columns, link) {
-    if (!data || data.length === 0) {
-      return `
-        <div class="section">
-          <h2 class="section-title">${title}</h2>
-          <p class="no-data">Нет данных для отображения</p>
-          <em>Вы можете добавить информацию по <a href="${link}" class="section-link">ссылке</a>.</em>
-        </div>
-      `;
-    }
-    
-    const headers = columns.map(field => `<th>${field}</th>`).join('');
-    const rows = data.map(row => `
-      <tr>${columns.map(field => `<td>${row[field] || ''}</td>`).join('')}</tr>
-    `).join('');
-    
-    return `
-      <div class="section">
-        <h2 class="section-title">${title}</h2>
-        ${getSectionDescription(title, link)}
-        <table>
-          <thead><tr>${headers}</tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  // Описания для разделов с ссылками
-  function getSectionDescription(title, link) {
-    const descriptions = {
-      'Рекомендуемые мероприятия': `<em>*В этом разделе представлены мероприятия, рекомендованные для вашего дальнейшего профессионального развития. Участие в них поможет расширить ваши знания, умения и навыки, а также поспособствует обмену опытом с коллегами и специалистами в вашей области.</em>`,
-      'Тьюторское сопровождение': `<em>*В данном разделе отражается информация о мероприятиях, которые вы посетили. Данные вносятся тьютором на основании регистрационных листов, подтверждающих ваше участие. Этот процесс позволяет систематизировать сведения о вашей образовательной активности и учитывать их при дальнейшем профессиональном развитии.</em>`,
-      'Методическое сопровождение': `<em>*Раздел включает сведения о ваших посещениях открытых уроков регионального методиста, а также о визитах регионального методиста на ваши профессиональные мероприятия, такие как открытые уроки, мастер-классы и иные образовательные активности. Методист оценивает вашу работу, предоставляет рекомендации и поддерживает ваше профессиональное развитие с учетом актуальных методических требований.</em>`,
-      'Обратная связь': `<em>*В этом разделе вы можете выразить свое мнение о прошедших мероприятиях, выставить оценку и оставить комментарий. Ваши отзывы играют важную роль в совершенствовании образовательного процесса, позволяя учитывать ваши потребности и предпочтения при организации дальнейших мероприятий. Поделитесь своим мнением о прошедших мероприятиях — <a href="${link}" class="section-link">пройдите опрос</a>.</em>`,
-      'Активность': `<em>*Раздел предназначен для учета вашей самостоятельной образовательной активности. Здесь фиксируются посещенные вами мероприятия, прочитанная профессиональная литература, участие в тематических дискуссиях и другие формы саморазвития, способствующие повышению вашей компетентности. Добавьте свою активность — <a href="${link}" class="section-link">пройдите опрос</a>.</em>`
-    };
-    return descriptions[title] || '';
-  }
-
-  // Функция для генерации PDF
-  function generatePDF() {
-    const element = document.getElementById('content');
-    if (!element || element.innerHTML.trim() === '') {
-      alert('Сначала загрузите данные маршрута');
-      return;
-    }
-
-    // Клонируем элемент, чтобы скрыть кнопки и другие ненужные элементы
-    const clone = element.cloneNode(true);
-    const buttons = clone.querySelectorAll('button, .download-btn, .section-link');
-    buttons.forEach(btn => btn.style.display = 'none');
-    
-    document.body.appendChild(clone);
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    html2canvas(clone, { scale: 2 }).then(canvas => {
-      const imgData = canvas.toDataURL('image/jpeg', 0.98);
-      const imgWidth = 190; // Ширина изображения с учетом отступов
-      const pageHeight = 297; // Высота страницы A4
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 10; // Начальная позиция по Y
-
-      // Добавляем первую страницу
-      doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - 20;
-
-      // Добавляем дополнительные страницы, если контент не помещается
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + 10;
-        doc.addPage();
-        doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight - 20;
-      }
-
-      // Сохраняем PDF
-      doc.save('Индивидуальный_образовательный_маршрут.pdf');
-      document.body.removeChild(clone);
-    });
-  }
-
-  // Обработчики событий
-  document.getElementById('id-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const userId = document.getElementById('user-id').value.trim();
-    if (userId) {
-      loadUserData(userId);
-    }
-  });
-
-  document.getElementById('pdf-download-btn').addEventListener('click', generatePDF);
-</script>
+  </script>
 </body>
 </html>
-

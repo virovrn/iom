@@ -2,69 +2,75 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>ИОМ через Google Sheets</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop/1.5.4/tabletop.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Индивидуальный маршрут</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
-    input, button { padding: 10px; font-size: 16px; margin-right: 10px; }
-    table { border-collapse: collapse; width: 100%; margin: 20px 0; background: white; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
-    th { background: #eef; }
-    .section { margin-top: 30px; }
+    body { font-family: sans-serif; background: #f4f7fb; padding: 20px; }
+    h1 { text-align: center; color: #2c3e50; }
+    input, button {
+      padding: 10px; margin: 10px; font-size: 1rem;
+    }
+    .section { background: #fff; padding: 20px; margin: 20px 0; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
   <h1>Индивидуальный образовательный маршрут</h1>
-  <div>
-    <input type="text" id="userId" placeholder="Введите ID" />
-    <button onclick="run()">Показать</button>
+  <div style="text-align: center;">
+    <input type="text" id="user-id" placeholder="Введите ID">
+    <button onclick="loadUserData()">Показать</button>
   </div>
-  <div id="output"></div>
+  <div id="content"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script>
-    // Вставьте свой ID Google-таблицы
-    const SPREADSHEET_KEY = '1Xaa2DP-ME57SHfuPzBfnTa2QyTHpGf9DGcHVmsFx4GE';
+    const csvUrls = {
+      info: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=2139401196&single=true&output=csv',
+      recom: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=628340204&single=true&output=csv',
+      tut: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=20008756&single=true&output=csv',
+      met: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=475076945&single=true&output=csv',
+      feedback: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=182752748&single=true&output=csv',
+      active: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=1246126546&single=true&output=csv'
+    };
 
-    function run() {
-      const id = document.getElementById('userId').value.trim();
-      if (!id) return alert('ID не введён');
-      document.getElementById('output').innerHTML = 'Загрузка...';
-      Tabletop.init({
-        key: SPREADSHEET_KEY,
-        callback: data => render(data, id),
-        simpleSheet: false
-      });
-    }
+    async function loadUserData() {
+      const userId = document.getElementById('user-id').value.trim();
+      const content = document.getElementById('content');
+      content.innerHTML = 'Загрузка...';
 
-    function render(data, userId) {
-      const sheets = ['Info','Recom','Tut','Met','Feedback','Active'];
-      const info = data.Info.elements.find(r => r.ID == userId);
-      if (!info) {
-        document.getElementById('output').innerHTML = `<p>ID ${userId} не найден.</p>`;
-        return;
+      try {
+        const results = await Promise.all(Object.entries(csvUrls).map(([key, url]) =>
+          fetch(url).then(res => res.text()).then(text => [key, Papa.parse(text, { header: true }).data])
+        ));
+        const data = Object.fromEntries(results);
+
+        const infoRow = data.info.find(row => row[Object.keys(row)[0]] === userId);
+        if (!infoRow) {
+          content.innerHTML = '<p>Пользователь с таким ID не найден.</p>';
+          return;
+        }
+
+        const userFio = Object.values(infoRow)[1]?.trim();
+        const displaySection = (title, rows) => {
+          if (!rows.length) return `<div class="section"><h2>${title}</h2><p>Нет данных</p></div>`;
+          const headers = Object.keys(rows[0]);
+          const tableRows = rows.map(r => `<tr>${headers.map(h => `<td>${r[h] || ''}</td>`).join('')}</tr>`).join('');
+          return `<div class="section"><h2>${title}</h2><table><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>${tableRows}</table></div>`;
+        };
+
+        content.innerHTML = `
+          ${displaySection('Общая информация', [infoRow])}
+          ${displaySection('Рекомендуемые мероприятия', data.recom.filter(r => Object.values(r)[1]?.trim() === userFio))}
+          ${displaySection('Тьюторское сопровождение', data.tut.filter(r => Object.values(r)[1]?.trim() === userFio))}
+          ${displaySection('Методическое сопровождение', data.met.filter(r => Object.values(r)[1]?.trim() === userFio))}
+          ${displaySection('Обратная связь', data.feedback.filter(r => Object.values(r)[1]?.trim() === userFio))}
+          ${displaySection('Активность', data.active.filter(r => Object.values(r)[1]?.trim() === userFio))}
+        `;
+      } catch (e) {
+        content.innerHTML = `<p>Ошибка при загрузке: ${e.message}</p>`;
+        console.error(e);
       }
-      const fio = info['ФИО'] || info['FIO'];
-      let html = `<h2>${fio}</h2>`;
-
-      sheets.slice(1).forEach(sheet => {
-        const rows = data[sheet].elements.filter(r => (r['ФИО']||r['FIO']) == fio);
-        html += `<div class="section"><h3>${sheet}</h3>`;
-        if (rows.length) {
-          html += '<table><thead><tr>' +
-                  Object.keys(rows[0])
-                        .slice(1, sheet==='Recom'?6: sheet==='Active'?5:7)
-                        .map(h=>`<th>${h}</th>`).join('') +
-                  '</tr></thead><tbody>' +
-                  rows.map(r=>'<tr>'+ Object.values(r)
-                          .slice(1, sheet==='Recom'?6: sheet==='Active'?5:7)
-                          .map(v=>`<td>${v}</td>`).join('') +
-                  '</tr>').join('') +
-                  '</tbody></table>';
-        } else html += '<p>Нет данных</p>';
-        html += '</div>';
-      });
-
-      document.getElementById('output').innerHTML = html;
     }
   </script>
 </body>

@@ -487,7 +487,16 @@
       loadUserData(userId);
     }
   });
+  function parseDate(dateStr) {
+  if (!dateStr) return null;
+  const parts = dateStr.trim().split('.');
+  if (parts.length !== 3) return null;
 
+  const [day, month, year] = parts.map(part => parseInt(part, 10));
+  if (!day || !month || !year) return null;
+
+  return new Date(year, month - 1, day);
+}
   function filterById(data, userId) {
   if (!data || !data.length) return [];
 

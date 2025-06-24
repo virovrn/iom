@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Индивидуальный образовательный маршрут</title>
+  <title>Индивидуальный маршрут</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     :root {
       --cream: #F5F9FF;
@@ -190,7 +189,6 @@
       text-decoration: underline;
     }
     
-    /* Мобильные стили */
     @media (max-width: 768px) {
       #id-form {
         padding: 20px;
@@ -205,15 +203,7 @@
       }
       
       th, td {
-        padding: 12px 10px;
-        font-size: 16px;
-        white-space: nowrap;
-      }
-      
-      table {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        padding: 10px;
       }
       
       .main-title {
@@ -244,8 +234,9 @@
     <button id="pdf-download-btn" class="download-btn">Скачать бланк ИОМ в PDF</button>
   </footer>
 
-  <script>
-  // URL CSV файлов
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+  // Конфигурация URL для CSV файлов
   const csvUrls = {
     info: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=2139401196&single=true&output=csv',
     recom: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=628340204&single=true&output=csv',
@@ -255,7 +246,7 @@
     active: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTp8EiotL2euRanJTg7f3yHDP2k-mK6WA_FOqccHiUL0advR2giKrUCrn45WFXgJvlLnFwivrI-IDCh/pub?gid=1246126546&single=true&output=csv'
   };
 
-  // Ссылки для редактирования форм
+  // Конфигурация ссылок для разделов
   const sectionLinks = {
     info: 'https://cloud.vrnds.ru/apps/forms/s/kiQXxqArwnCGrTNefQr486in',
     recom: 'https://cloud.vrnds.ru/apps/forms/s/your-recom-link',
@@ -265,50 +256,13 @@
     active: 'https://cloud.vrnds.ru/apps/forms/s/Hw9q2kn3HqgMDmk5mLXWPNaC'
   };
 
-  // Загрузка CSV по URL
-  async function loadCsvData(url, fileName) {
-    try {
-      const response = await fetch(url, { headers: { 'Accept': 'text/csv' } });
-      if (!response.ok) {
-        throw new Error(`Ошибка загрузки ${fileName}: ${response.status}`);
-      }
-      const text = await response.text();
-      return new Promise(resolve => {
-        Papa.parse(text, {
-          header: true,
-          skipEmptyLines: true,
-          complete: results => resolve(results.data)
-        });
-      });
-    } catch (error) {
-      console.error(`Ошибка загрузки ${fileName}:`, error);
-      throw error;
-    }
-  }
-
-  // Фильтрация по ФИО (теперь все ФИО в 1 столбце, ищем строгое совпадение)
-  function filterByFio(data, fio) {
-    if (!data || !data.length) return [];
-    const fioField = Object.keys(data[0]).find(k => /фио|fio|фам/i.test(k));
-    if (!fioField) return [];
-    return data.filter(row => row[fioField] && row[fioField].trim() === fio);
-  }
-
-  // Функция парсинга дат в формате "ДД.ММ.ГГГГ"
-  function parseDateRu(dateStr) {
-    if (!dateStr) return new Date(0);
-    const parts = dateStr.split('.');
-    if (parts.length === 3) {
-      return new Date(parts[2], parts[1] - 1, parts[0]);
-    }
-    // fallback
-    return new Date(dateStr);
-  }
-  // Основная функция загрузки и отображения данных по ID
+  // Основная функция загрузки и отображения данных
   async function loadUserData(userId) {
     const content = document.getElementById('content');
-    content.innerHTML = `<p style="text-align:center; font-size:1.2rem; color: var(--dark-blue);">Загрузка данных...</p>`;
+    content.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--dark-blue);">Загрузка данных...</p>';
+    
     try {
+      // Загружаем все CSV файлы параллельно
       const [infoData, recomData, tutData, metData, feedbackData, activeData] = await Promise.all([
         loadCsvData(csvUrls.info, 'info'),
         loadCsvData(csvUrls.recom, 'recom'),
@@ -318,94 +272,141 @@
         loadCsvData(csvUrls.active, 'active')
       ]);
 
-      // Находим пользователя по ID (первый столбец infoData)
-      const idKey = Object.keys(infoData[0])[0];
-      const userInfo = infoData.find(row => row[idKey] === userId);
+      // Находим пользователя по ID (первый столбец)
+      const userInfo = infoData.find(row => {
+        const firstColumnValue = Object.values(row)[0];
+        return firstColumnValue && firstColumnValue.trim() === userId;
+      });
+      
       if (!userInfo) {
-        content.innerHTML = `<p class="no-data" style="font-size:1.2rem;">Пользователь с таким ID не найден</p>`;
+        content.innerHTML = '<p class="no-data" style="font-size: 1.2rem;">Пользователь с таким ID не найден</p>';
         return;
       }
 
-      // Получаем ФИО из userInfo (второй столбец)
-      const fioField = Object.keys(userInfo)[1];
-      const userFio = userInfo[fioField].trim();
-
-      // Фильтруем по ФИО все остальные таблицы
+      // Фильтруем данные по ID из первого столбца
       const filteredData = {
-        recom: filterByFio(recomData, userFio),
-        tut: filterByFio(tutData, userFio),
-        met: filterByFio(metData, userFio),
-        feedback: filterByFio(feedbackData, userFio),
-        active: filterByFio(activeData, userFio)
+        recom: filterById(recomData, userId),
+        tut: filterById(tutData, userId),
+        met: filterById(metData, userId),
+        feedback: filterById(feedbackData, userId),
+        active: filterById(activeData, userId)
       };
 
       // Отображаем данные
-      displayUserData(userInfo, filteredData, { recomData, tutData, metData, feedbackData, activeData });
-
+      displayUserData(userInfo, filteredData, {
+        recom: recomData,
+        tut: tutData,
+        met: metData,
+        feedback: feedbackData,
+        active: activeData
+      });
+      
     } catch (error) {
-      content.innerHTML = `<div class="section"><p class="no-data" style="color: var(--accent-blue);">Ошибка загрузки данных: ${error.message}</p></div>`;
-      console.error(error);
+      console.error('Ошибка при загрузке данных:', error);
+      content.innerHTML = `
+        <div class="section">
+          <p class="no-data" style="color: var(--accent-blue);">
+            Произошла ошибка при загрузке данных: ${error.message}. Проверьте консоль браузера (F12 → Консоль) для подробностей.
+          </p>
+        </div>
+      `;
     }
   }
 
-  // Получение столбцов для отображения (с 3 по N-1) — срез по индексам
-  function getColumns(data, start, end) {
-    if (!data || !data.length) return [];
-    return Object.keys(data[0]).slice(start, end);
+  // Функция загрузки CSV файла
+  async function loadCsvData(url, fileName) {
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/csv'
+        }
+      });
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'No error text available');
+        throw new Error(`HTTP error! Status: ${response.status}, URL: ${url}, File: ${fileName}, Response: ${errorText}`);
+      }
+      const text = await response.text();
+      return new Promise((resolve) => {
+        Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => resolve(results.data)
+        });
+      });
+    } catch (error) {
+      console.error(`Ошибка загрузки ${fileName} (${url}):`, error);
+      throw error;
+    }
   }
 
-  // Отображение всех секций с данными
+  // Функция фильтрации по ID из первого столбца
+  function filterById(data, userId) {
+    if (!data || !data.length) return [];
+    
+    return data.filter(row => {
+      const firstColumnValue = Object.values(row)[0];
+      return firstColumnValue && firstColumnValue.trim() === userId;
+    });
+  }
+
+  // Функция отображения данных с учетом нужных столбцов
   function displayUserData(userInfo, filteredData, allData) {
     const content = document.getElementById('content');
-
+    
     content.innerHTML = `
       ${createInfoSection(userInfo)}
-      ${createSection('Рекомендуемые мероприятия', filteredData.recom, getColumns(allData.recomData, 2, 7), sectionLinks.recom)}
-      ${createSection('Тьюторское сопровождение', filteredData.tut, getColumns(allData.tutData, 2, 8), sectionLinks.tut)}
-      ${createSection('Методическое сопровождение', filteredData.met, getColumns(allData.metData, 2, 8), sectionLinks.met)}
-      ${createSection('Обратная связь', filteredData.feedback, getColumns(allData.feedbackData, 2, 8), sectionLinks.feedback)}
-      ${createSection('Активность', filteredData.active, getColumns(allData.activeData, 2, 6), sectionLinks.active)}
+      ${createSection('Рекомендуемые мероприятия', filteredData.recom, getColumns(allData.recom, 1, 5), sectionLinks.recom)}
+      ${createSection('Тьюторское сопровождение', filteredData.tut, getColumns(allData.tut, 1, 6), sectionLinks.tut)}
+      ${createSection('Методическое сопровождение', filteredData.met, getColumns(allData.met, 1, 6), sectionLinks.met)}
+      ${createSection('Обратная связь', filteredData.feedback, getColumns(allData.feedback, 1, 6), sectionLinks.feedback)}
+      ${createSection('Активность', filteredData.active, getColumns(allData.active, 1, 4), sectionLinks.active)}
     `;
   }
 
-  // Создаём секцию с основной информацией пользователя
+  // Получение нужных столбцов для каждого листа
+  function getColumns(data, start, end) {
+    if (!data || !data.length) return [];
+    const allColumns = Object.keys(data[0]);
+    return allColumns.slice(start, end);
+  }
+
+  // Создание секции с основной информацией
   function createInfoSection(userInfo) {
-    const fields = Object.keys(userInfo).slice(0, 15);
+    const fields = Object.keys(userInfo).slice(0, 11);
     const rows = fields.map(field => `
       <tr>
         <th>${field}</th>
         <td>${userInfo[field] || ''}</td>
       </tr>
     `).join('');
+    
     return `
       <div class="section">
         <h2 class="section-title">Общая информация</h2>
-        <em>Внесите корректировки по <a href="${sectionLinks.info}" class="section-link" target="_blank" rel="noopener noreferrer">ссылке</a>.</em>
+        <em>Внесите корректировки в общую информацию по <a href="${sectionLinks.info}" class="section-link">ссылке</a>.</em>
         <table><tbody>${rows}</tbody></table>
       </div>
     `;
   }
-      // Создание секции с таблицей и сортировкой по 2-му столбцу (датам)
+
+  // Создание секции с таблицей данных
   function createSection(title, data, columns, link) {
     if (!data || data.length === 0) {
       return `
         <div class="section">
           <h2 class="section-title">${title}</h2>
           <p class="no-data">Нет данных для отображения</p>
-          <em>Добавьте информацию по <a href="${link}" class="section-link" target="_blank" rel="noopener noreferrer">ссылке</a>.</em>
+          <em>Вы можете добавить информацию по <a href="${link}" class="section-link">ссылке</a>.</em>
         </div>
       `;
     }
-
-    const dateField = columns[1];
-    // Копируем и сортируем, свежие даты сверху
-    const sortedData = [...data].sort((a, b) => parseDateRu(b[dateField]) - parseDateRu(a[dateField]));
-
+    
     const headers = columns.map(field => `<th>${field}</th>`).join('');
-    const rows = sortedData.map(row => `
+    const rows = data.map(row => `
       <tr>${columns.map(field => `<td>${row[field] || ''}</td>`).join('')}</tr>
     `).join('');
-
+    
     return `
       <div class="section">
         <h2 class="section-title">${title}</h2>
@@ -418,41 +419,78 @@
     `;
   }
 
-  // Описание для секций с ссылками
+  // Описания для разделов с ссылками
   function getSectionDescription(title, link) {
-    return `<em>Вы можете внести данные по <a href="${link}" class="section-link" target="_blank" rel="noopener noreferrer">ссылке</a>.</em>`;
+    const descriptions = {
+      'Рекомендуемые мероприятия': `<em>*В этом разделе представлены мероприятия, рекомендованные для вашего дальнейшего профессионального развития. Участие в них поможет расширить ваши знания, умения и навыки, а также поспособствует обмену опытом с коллегами и специалистами в вашей области.</em>`,
+      'Тьюторское сопровождение': `<em>*В данном разделе отражается информация о мероприятиях, которые вы посетили. Данные вносятся тьютором на основании регистрационных листов, подтверждающих ваше участие. Этот процесс позволяет систематизировать сведения о вашей образовательной активности и учитывать их при дальнейшем профессиональном развитии.</em>`,
+      'Методическое сопровождение': `<em>*Раздел включает сведения о ваших посещениях открытых уроков регионального методиста, а также о визитах регионального методиста на ваши профессиональные мероприятия, такие как открытые уроки, мастер-классы и иные образовательные активности. Методист оценивает вашу работу, предоставляет рекомендации и поддерживает ваше профессиональное развитие с учетом актуальных методических требований.</em>`,
+      'Обратная связь': `<em>*В этом разделе вы можете выразить свое мнение о прошедших мероприятиях, выставить оценку и оставить комментарий. Ваши отзывы играют важную роль в совершенствовании образовательного процесса, позволяя учитывать ваши потребности и предпочтения при организации дальнейших мероприятий. Поделитесь своим мнением о прошедших мероприятиях — <a href="${link}" class="section-link">пройдите опрос</a>.</em>`,
+      'Активность': `<em>*Раздел предназначен для учета вашей самостоятельной образовательной активности. Здесь фиксируются посещенные вами мероприятия, прочитанная профессиональная литература, участие в тематических дискуссиях и другие формы саморазвития, способствующие повышению вашей компетентности. Добавьте свою активность — <a href="${link}" class="section-link">пройдите опрос</a>.</em>`
+    };
+    return descriptions[title] || '';
   }
 
-  // Обработчик формы
-  document.getElementById('id-form').addEventListener('submit', e => {
+  // Функция для генерации PDF
+  function generatePDF() {
+    const element = document.getElementById('content');
+    if (!element || element.innerHTML.trim() === '') {
+      alert('Сначала загрузите данные маршрута');
+      return;
+    }
+
+    // Клонируем элемент, чтобы скрыть кнопки и другие ненужные элементы
+    const clone = element.cloneNode(true);
+    const buttons = clone.querySelectorAll('button, .download-btn, .section-link');
+    buttons.forEach(btn => btn.style.display = 'none');
+    
+    document.body.appendChild(clone);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    html2canvas(clone, { scale: 2 }).then(canvas => {
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const imgWidth = 190; // Ширина изображения с учетом отступов
+      const pageHeight = 297; // Высота страницы A4
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 10; // Начальная позиция по Y
+
+      // Добавляем первую страницу
+      doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - 20;
+
+      // Добавляем дополнительные страницы, если контент не помещается
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10;
+        doc.addPage();
+        doc.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - 20;
+      }
+
+      // Сохраняем PDF
+      doc.save('Индивидуальный_образовательный_маршрут.pdf');
+      document.body.removeChild(clone);
+    });
+  }
+
+  // Обработчики событий
+  document.getElementById('id-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value.trim();
-    if (!userId) {
-      alert('Введите ID!');
-      return;
+    if (userId) {
+      loadUserData(userId);
     }
-    loadUserData(userId);
   });
 
-  // PDF генерация
-  document.getElementById('pdf-download-btn').addEventListener('click', () => {
-    const content = document.getElementById('content');
-    if (!content.innerHTML.trim()) {
-      alert('Пожалуйста, сначала загрузите данные.');
-      return;
-    }
-    // html2canvas + jsPDF
-    html2canvas(content, { scale: 2 }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('ИОМ.pdf');
-    });
-  });
+  document.getElementById('pdf-download-btn').addEventListener('click', generatePDF);
 </script>
 </body>
 </html>
+
 

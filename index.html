@@ -488,6 +488,29 @@
     }
   });
 
+  function filterById(data, userId) {
+  if (!data || !data.length) return [];
+
+  const filtered = data.filter(row => {
+    const firstColumnValue = Object.values(row)[0];
+    return firstColumnValue && firstColumnValue.trim() === userId;
+  });
+
+  // Пробуем сортировать по дате из второго столбца
+  return filtered.sort((a, b) => {
+    const aValue = Object.values(a)[1] || '';
+    const bValue = Object.values(b)[1] || '';
+    const aDate = parseDate(aValue);
+    const bDate = parseDate(bValue);
+
+    if (aDate && bDate) {
+      return bDate - aDate; // по убыванию (новые сверху)
+    }
+    return 0;
+  });
+}
+
+
   document.getElementById('pdf-download-btn').addEventListener('click', generatePDF);
 </script>
 </body>

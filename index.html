@@ -273,7 +273,8 @@
       ]);
 
       // Находим пользователя по ID
-      const userInfo = infoData.find(row => row.ID === userId);
+      const idKey = Object.keys(infoData[0])[0];
+      const userInfo = infoData.find(row => row[idKey] === userId);
       if (!userInfo) {
         content.innerHTML = '<p class="no-data" style="font-size: 1.2rem;">Пользователь с таким ID не найден</p>';
         return;

@@ -340,16 +340,6 @@
     }
   }
 
-  // Функция фильтрации по ID из первого столбца
-  function filterById(data, userId) {
-    if (!data || !data.length) return [];
-    
-    return data.filter(row => {
-      const firstColumnValue = Object.values(row)[0];
-      return firstColumnValue && firstColumnValue.trim() === userId;
-    });
-  }
-
   // Функция отображения данных с учетом нужных столбцов
   function displayUserData(userInfo, filteredData, allData) {
     const content = document.getElementById('content');

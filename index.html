@@ -16,7 +16,7 @@
       --dark-blue: #4A6B8A;
       --accent-blue: #5B8AC7;
     }
-    
+
     body {
       font-family: 'Montserrat', sans-serif;
       background-color: var(--cream);
@@ -25,13 +25,13 @@
       padding: 0;
       line-height: 1.6;
     }
-    
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
     }
-    
+
     .main-title {
       font-family: 'Playfair Display', serif;
       color: var(--dark-blue);
@@ -39,7 +39,7 @@
       font-size: 2.2rem;
       margin-bottom: 30px;
     }
-    
+
     #id-form {
       background-color: white;
       padding: 25px;
@@ -52,7 +52,7 @@
       flex-direction: column;
       align-items: center;
     }
-    
+
     #user-id {
       padding: 12px 15px;
       border: 2px solid var(--medium-blue);
@@ -62,13 +62,13 @@
       margin-bottom: 15px;
       background-color: var(--cream);
     }
-    
+
     #user-id:focus {
       outline: none;
       border-color: var(--accent-blue);
       box-shadow: 0 0 0 3px rgba(91, 138, 199, 0.2);
     }
-    
+
     button {
       background-color: var(--accent-blue);
       color: white;
@@ -80,11 +80,11 @@
       font-weight: 500;
       letter-spacing: 0.5px;
     }
-    
+
     button:hover {
       background-color: var(--dark-blue);
     }
-    
+
     .section {
       background-color: white;
       padding: 30px;
@@ -92,7 +92,7 @@
       margin-bottom: 30px;
       box-shadow: 0 5px 15px rgba(106, 142, 180, 0.05);
     }
-    
+
     table {
       border-collapse: collapse;
       width: 100%;
@@ -100,28 +100,28 @@
       border-radius: 10px;
       overflow: hidden;
     }
-    
+
     th, td {
       padding: 15px;
       text-align: left;
       border-bottom: 1px solid var(--light-blue);
     }
-    
+
     th {
       background-color: var(--light-blue);
       color: var(--dark-blue);
       font-weight: 500;
       width: 30%;
     }
-    
+
     tr:nth-child(even) {
       background-color: rgba(230, 240, 255, 0.3);
     }
-    
+
     tr:hover {
       background-color: rgba(196, 216, 242, 0.2);
     }
-    
+
     .no-data {
       color: var(--dark-blue);
       font-style: italic;
@@ -129,7 +129,7 @@
       padding: 20px;
       font-size: 1.1rem;
     }
-    
+
     footer {
       text-align: center;
       padding: 30px;
@@ -138,16 +138,16 @@
       margin-top: 50px;
       border-top: 1px solid var(--light-blue);
     }
-    
+
     footer a {
       color: var(--accent-blue);
       text-decoration: none;
     }
-    
+
     footer a:hover {
       text-decoration: underline;
     }
-    
+
     .download-btn {
       display: inline-block;
       background-color: var(--accent-blue);
@@ -158,18 +158,18 @@
       margin-top: 15px;
       font-weight: 500;
     }
-    
+
     .download-btn:hover {
       background-color: var(--dark-blue);
     }
-    
+
     em {
       color: var(--dark-blue);
       font-style: normal;
       display: block;
       margin-bottom: 15px;
     }
-    
+
     .section-title {
       font-family: 'Playfair Display', serif;
       color: var(--accent-blue);
@@ -178,34 +178,34 @@
       border-bottom: 2px solid var(--medium-blue);
       font-size: 1.8rem;
     }
-    
+
     .section-link {
       color: var(--accent-blue);
       text-decoration: none;
       font-weight: 500;
     }
-    
+
     .section-link:hover {
       text-decoration: underline;
     }
-    
+
     @media (max-width: 768px) {
       #id-form {
         padding: 20px;
       }
-      
+
       #user-id {
         width: 100%;
       }
-      
+
       .section {
         padding: 20px;
       }
-      
+
       th, td {
         padding: 10px;
       }
-      
+
       .main-title {
         font-size: 1.8rem;
       }
@@ -215,16 +215,13 @@
 <body>
   <div class="container">
     <h1 class="main-title">Индивидуальный образовательный маршрут</h1>
-    
     <form id="id-form">
       <label for="user-id">Введите ваш ID:</label>
       <input type="text" id="user-id" name="user-id" placeholder="например, 36251200" />
       <button type="submit">Показать маршрут</button>
     </form>
-    
     <div id="content"></div>
   </div>
-  
   <footer>
     <div>
       Если вы заметили ошибки, отсутствуют посещенные мероприятия или у вас есть предложения,
@@ -233,7 +230,6 @@
     </div>
     <button id="pdf-download-btn" class="download-btn">Скачать бланк ИОМ в PDF</button>
   </footer>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
   // Конфигурация URL для CSV файлов
@@ -260,7 +256,7 @@
   async function loadUserData(userId) {
     const content = document.getElementById('content');
     content.innerHTML = '<p style="text-align: center; font-size: 1.2rem; color: var(--dark-blue);">Загрузка данных...</p>';
-    
+
     try {
       // Загружаем все CSV файлы параллельно
       const [infoData, recomData, tutData, metData, feedbackData, activeData] = await Promise.all([
@@ -277,7 +273,7 @@
         const firstColumnValue = Object.values(row)[0];
         return firstColumnValue && firstColumnValue.trim() === userId;
       });
-      
+
       if (!userInfo) {
         content.innerHTML = '<p class="no-data" style="font-size: 1.2rem;">Пользователь с таким ID не найден</p>';
         return;
@@ -300,7 +296,7 @@
         feedback: feedbackData,
         active: activeData
       });
-      
+
     } catch (error) {
       console.error('Ошибка при загрузке данных:', error);
       content.innerHTML = `
@@ -343,7 +339,7 @@
   // Функция отображения данных с учетом нужных столбцов
   function displayUserData(userInfo, filteredData, allData) {
     const content = document.getElementById('content');
-    
+
     content.innerHTML = `
       ${createInfoSection(userInfo)}
       ${createSection('Рекомендуемые мероприятия', filteredData.recom, getColumns(allData.recom, 1, 5), sectionLinks.recom)}
@@ -370,7 +366,7 @@
         <td>${userInfo[field] || ''}</td>
       </tr>
     `).join('');
-    
+
     return `
       <div class="section">
         <h2 class="section-title">Общая информация</h2>
@@ -380,27 +376,30 @@
     `;
   }
 
-  // Создание секции с таблицей данных
+  // Создание секции с таблицей данных и описанием (описание всегда показывается)
   function createSection(title, data, columns, link) {
+    const sectionDescription = getSectionDescription(title, link);
+
     if (!data || data.length === 0) {
       return `
         <div class="section">
           <h2 class="section-title">${title}</h2>
+          ${sectionDescription}
           <p class="no-data">Нет данных для отображения</p>
           <em>Данные скоро обновятся</em>
         </div>
       `;
     }
-    
+
     const headers = columns.map(field => `<th>${field}</th>`).join('');
     const rows = data.map(row => `
       <tr>${columns.map(field => `<td>${row[field] || ''}</td>`).join('')}</tr>
     `).join('');
-    
+
     return `
       <div class="section">
         <h2 class="section-title">${title}</h2>
-        ${getSectionDescription(title, link)}
+        ${sectionDescription}
         <table>
           <thead><tr>${headers}</tr></thead>
           <tbody>${rows}</tbody>
@@ -409,7 +408,7 @@
     `;
   }
 
-  // Описания для разделов с ссылками, обновляется не сразу
+  // Описания для разделов с ссылками, показываются всегда
   function getSectionDescription(title, link) {
     const descriptions = {
       'Рекомендуемые мероприятия': `<em>*В этом разделе представлены мероприятия, рекомендованные для Вашего дальнейшего профессионального развития. Участие в них поможет расширить Ваши компетенции, а также поспособствует обмену опытом с коллегами и специалистами в Вашей области.</em>`,
@@ -433,7 +432,7 @@
     const clone = element.cloneNode(true);
     const buttons = clone.querySelectorAll('button, .download-btn, .section-link');
     buttons.forEach(btn => btn.style.display = 'none');
-    
+
     document.body.appendChild(clone);
 
     const { jsPDF } = window.jspdf;
@@ -477,42 +476,41 @@
       loadUserData(userId);
     }
   });
+
   function parseDate(dateStr) {
-  if (!dateStr) return null;
-  const parts = dateStr.trim().split('.');
-  if (parts.length !== 3) return null;
+    if (!dateStr) return null;
+    const parts = dateStr.trim().split('.');
+    if (parts.length !== 3) return null;
 
-  const [day, month, year] = parts.map(part => parseInt(part, 10));
-  if (!day || !month || !year) return null;
+    const [day, month, year] = parts.map(part => parseInt(part, 10));
+    if (!day || !month || !year) return null;
 
-  return new Date(year, month - 1, day);
-}
+    return new Date(year, month - 1, day);
+  }
+
   function filterById(data, userId) {
-  if (!data || !data.length) return [];
+    if (!data || !data.length) return [];
 
-  const filtered = data.filter(row => {
-    const firstColumnValue = Object.values(row)[0];
-    return firstColumnValue && firstColumnValue.trim() === userId;
-  });
+    const filtered = data.filter(row => {
+      const firstColumnValue = Object.values(row)[0];
+      return firstColumnValue && firstColumnValue.trim() === userId;
+    });
 
-  // Пробуем сортировать по дате из второго столбца
-  return filtered.sort((a, b) => {
-    const aValue = Object.values(a)[1] || '';
-    const bValue = Object.values(b)[1] || '';
-    const aDate = parseDate(aValue);
-    const bDate = parseDate(bValue);
+    // Пробуем сортировать по дате из второго столбца
+    return filtered.sort((a, b) => {
+      const aValue = Object.values(a)[1] || '';
+      const bValue = Object.values(b)[1] || '';
+      const aDate = parseDate(aValue);
+      const bDate = parseDate(bValue);
 
-    if (aDate && bDate) {
-      return bDate - aDate; // по убыванию (новые сверху)
-    }
-    return 0;
-  });
-}
-
+      if (aDate && bDate) {
+        return bDate - aDate; // по убыванию (новые сверху)
+      }
+      return 0;
+    });
+  }
 
   document.getElementById('pdf-download-btn').addEventListener('click', generatePDF);
 </script>
 </body>
 </html>
-
-
